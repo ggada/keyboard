@@ -5,6 +5,12 @@ local isInTerminal = function()
   return app == 'iTerm2' or app == 'Terminal'
 end
 
+-- Ignore Emacs
+local isIgnoredApp = function()
+  app = hs.application.frontmostApplication():name()
+  return app == 'Emacs'
+end
+
 -- Use option + h to delete previous word
 hs.hotkey.bind({'alt'}, 'h', function()
   if isInTerminal() then
@@ -30,7 +36,7 @@ end)
 -- we don't need (or want) this hotkey in the terminal. If this hotkey was
 -- enabled in the terminal, it would break the standard control + u behavior.
 -- Therefore, we only enable this hotkey for non-terminal apps.
-local wf = hs.window.filter.new():setFilters({iTerm2 = false, Terminal = false})
+local wf = hs.window.filter.new():setFilters({iTerm2 = false, Terminal = false, Emacs = false})
 enableHotkeyForWindowsMatchingFilter(wf, hs.hotkey.new({'ctrl'}, 'u', function()
   keyUpDown({'cmd'}, 'delete')
 end))
@@ -43,7 +49,8 @@ end))
 -- the end of the line (i.e., control+k). To maintain that very useful
 -- functionality, and to keep it on the home row, this hotkey binds control+; to
 -- delete to the end of the line.
-hs.hotkey.bind({'ctrl'}, ';', function()
+-- hs.hotkey.bind({'ctrl'}, ';', function()
+enableHotkeyForWindowsMatchingFilter(wf, hs.hotkey.new({'ctrl'}, ';', function()
   -- If we're in the terminal, then temporarily disable our custom control+k
   -- hotkey used for pane navigation, then fire control+k to delete to the end
   -- of the line, and then renable the control+k hotkey.
@@ -67,4 +74,4 @@ hs.hotkey.bind({'ctrl'}, ';', function()
     keyUpDown({'cmd', 'shift'}, 'right')
     keyUpDown({}, 'forwarddelete')
   end
-end)
+end))
